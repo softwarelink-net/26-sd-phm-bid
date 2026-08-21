@@ -217,7 +217,21 @@ export default {
         }
       }
       if (env.ASSETS) {
-        return env.ASSETS.fetch(request)
+        const assetRes = await env.ASSETS.fetch(request)
+        if (assetRes.status !== 404) return assetRes
+        const accept = request.headers.get('Accept') || ''
+        const isDoc = request.method === 'GET' && (accept.includes('text/html') || !url.pathname.includes('.'))
+        if (isDoc) {
+          const indexReq = new Request(new URL('/index.html', url.origin), request)
+          const indexRes = await env.ASSETS.fetch(indexReq)
+          if (indexRes.ok) {
+            return new Response(indexRes.body, {
+              status: 200,
+              headers: { 'Content-Type': 'text/html; charset=utf-8' },
+            })
+          }
+        }
+        return assetRes
       }
       const fromR2 = await serveProjectStorage(request, env)
       if (fromR2) return fromR2

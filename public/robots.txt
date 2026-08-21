@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://26-sd-phm-bid.softwarelink.net/sitemap.xml

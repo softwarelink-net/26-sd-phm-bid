@@ -131,13 +131,12 @@ async function request(path, options = {}) {
       headers: { 'Content-Type': 'application/json', ...authHeader(), ...(options.headers || {}) },
       ...options,
     })
+    const body = await res.json().catch(() => ({}))
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}))
-      throw Object.assign(new Error(body.error || res.statusText), { status: res.status, body })
+      return { success: false, error: body.error || body.message || res.statusText, status: res.status }
     }
-    return await res.json()
-  } catch (err) {
-    if (err.status) throw err
+    return body
+  } catch {
     return null
   }
 }
